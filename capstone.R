@@ -56,9 +56,9 @@ meth.varmean <- mean(meth.vars)
 expr.varmean <- mean(expr.vars)
 cnv.varmean <- mean(cnv.vars)
 
-cnv.N <- 50
+cnv.N <- 12
 meth.N <- 13
-expr.N <- 50
+expr.N <- 8
 meth.ndx <- order(meth.vars, decreasing = T)[1:meth.N]
 expr.ndx <- order(expr.vars, decreasing = T)[1:expr.N]
 cnv.ndx <- order(cnv.vars, decreasing = T)[1:cnv.N]
@@ -92,13 +92,11 @@ print(expr.rf)
 expr.genes <- round(importance(expr.rf), 2)
 
 
-## Look at variable importance:
-#round(importance(iris.rf), 2)
 ## Do MDS on 1 - proximity:
-#iris.mds <- cmdscale(1 - iris.rf$proximity, eig=TRUE)
-#op <- par(pty="s")
-#pairs(cbind(iris[,1:4], iris.mds$points), cex=0.6, gap=0,
-#      col=c("red", "green", "blue")[as.numeric(iris$Species)],
-#      main="Iris Data: Predictors and MDS of Proximity Based on RandomForest")
-#par(op)
-#print(iris.mds$GOF)
+meth.mds <- cmdscale(1 - meth.rf$proximity, eig=TRUE)
+op <- par(pty="s")
+pairs(cbind(meth.df[,-1], meth.mds$points), cex=0.6, gap=0,
+      col=c("red", "green")[as.numeric(meth.df$subtype)],
+      main="Methylation Data: Predictors and MDS of Proximity Based on RandomForest")
+par(op)
+print(meth.mds$GOF)
