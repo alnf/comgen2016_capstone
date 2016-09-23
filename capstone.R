@@ -75,18 +75,21 @@ cnv.df = data.frame(pat, t(cnv.f))
 cnv.rf <- randomForest(subtype ~ ., data=cnv.df, importance=TRUE,
                         proximity=TRUE)
 print(cnv.rf)
+cnv.genes <- round(importance(cnv.rf), 2)
 
 # Methylation
 meth.df = data.frame(pat, t(meth.f))
 meth.rf <- randomForest(subtype ~ ., data=meth.df, importance=TRUE,
                        proximity=TRUE)
 print(meth.rf)
+meth.genes <- round(importance(meth.rf), 2)
 
 # Expression
 expr.df = data.frame(pat, t(expr.f))
 expr.rf <- randomForest(subtype ~ ., data=expr.df, importance=TRUE,
                         proximity=TRUE)
 print(expr.rf)
+expr.genes <- round(importance(expr.rf), 2)
 
 
 ## Look at variable importance:
