@@ -125,3 +125,5 @@ pairs(cbind(combined.b[,-1], mds$points), cex=0.6, gap=0,
 par(op)
 print(meth.mds$GOF)
 
+predicted.response <- predict(cnv.rf, pat$subtype)
+plot(rf)
