@@ -74,14 +74,19 @@ cnv.f <- cna$dat[cnv.ndx, ]
 # Random forest
 
 # CNV
-cnv.df = data.frame(pat, t(cnv.f))
+cnv.df <- merge(pat, t(cnv.f), by="row.names")
+rownames(cnv.df) <- cnv.df[,1]
+cnv.df <- cnv.df[,-1]
+cnv.df <- cnv.df[,-4]
 cnv.rf <- randomForest(subtype ~ ., data=cnv.df, importance=TRUE,
                         proximity=TRUE)
 print(cnv.rf)
 cnv.genes <- round(importance(cnv.rf), 2)
 varImpPlot(cnv.rf)
 # Methylation
-meth.df = data.frame(pat, t(meth.f))
+meth.df <- merge(pat, t(meth.f), by="row.names")
+rownames(meth.df) <- meth.df[,1]
+meth.df <- meth.df[,-1]
 meth.rf <- randomForest(subtype ~ ., data=meth.df, importance=TRUE,
                        proximity=TRUE)
 print(meth.rf)
@@ -89,6 +94,9 @@ meth.genes <- round(importance(meth.rf), 2)
 varImpPlot(meth.rf)
 
 # Expression
+expr.df <- merge(pat, t(expr.f), by="row.names")
+rownames(expr.df) <- expr.df[,1]
+expr.df <- expr.df[,-1]
 expr.df = data.frame(pat, t(expr.f))
 expr.rf <- randomForest(subtype ~ ., data=expr.df, importance=TRUE,
                         proximity=TRUE)
@@ -96,17 +104,9 @@ print(expr.rf)
 expr.genes <- round(importance(expr.rf), 2)
 varImpPlot(expr.rf)
 
-## Do MDS on 1 - proximity:
-meth.mds <- cmdscale(1 - meth.rf$proximity, eig=TRUE)
-op <- par(pty="s")
-pairs(cbind(meth.df[,-1], meth.mds$points), cex=0.6, gap=0,
-      col=c("red", "green")[as.numeric(meth.df$subtype)],
-      main="Methylation Data: Predictors and MDS of Proximity Based on RandomForest")
-par(op)
-print(meth.mds$GOF)
+# Combined data
 
-
-combined <- merge(cnv.df, meth.df, by="row.names")
+combined <- merge(cnv.df, expr.df, by="row.names")
 combined.b <- combined[, -15]
 rownames(combined.b) <- combined[, 1]
 combined.b <- combined.b[, -1]
@@ -114,3 +114,14 @@ combined.b <- combined.b[, -1]
 rf <- randomForest(subtype.x ~ ., data=combined.b, importance=TRUE,
                        proximity=TRUE)
 print(rf)
+
+
+## Do MDS on 1 - proximity:
+mds <- cmdscale(1 - rf$proximity, eig=TRUE)
+op <- par(pty="s")
+pairs(cbind(combined.b[,-1], mds$points), cex=0.6, gap=0,
+      col=c("red", "green")[as.numeric(combined.b$subtype.x)],
+      main="Combined Data: Predictors and MDS of Proximity Based on RandomForest")
+par(op)
+print(meth.mds$GOF)
+
