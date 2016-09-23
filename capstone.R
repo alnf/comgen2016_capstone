@@ -1,4 +1,8 @@
 # Capstone project
+library(ggplot2)
+library(randomForest)
+library(ggfortify)
+library(cowplot)
 
 # Methylation
 meth=readRDS("/data/compgen2016/day10_projectDay/methylation.rds")
@@ -18,4 +22,27 @@ pat=readRDS("/data/compgen2016/day10_projectDay/patient2subtypes.rds")
 head(pat)
 pat[1:5,,drop=FALSE]
 
+# PCA
+meth.pca <- prcomp(t(meth$dat))
+expr.pca <- prcomp(t(exp$dat))
+cnv.pca <- prcomp(t(cna$dat))
+  
+title <- ggdraw() + draw_label("Methylation data PCA", fontface='bold')
+meth.pl <- autoplot(meth.pca, data = pat, colour="subtype")
+pl1 <- plot_grid(title, meth.pl, ncol=1, rel_heights=c(0.1, 1))
+title <- ggdraw() + draw_label("Expression data PCA", fontface='bold')
+expr.pl <- autoplot(expr.pca, data = pat, colour="subtype")
+pl2 <- plot_grid(title, expr.pl, ncol=1, rel_heights=c(0.1, 1))
+title <- ggdraw() + draw_label("CNV data PCA", fontface='bold')
+cnv.pl <- autoplot(cnv.pca, data = pat, colour="subtype")
+pl3 <- plot_grid(title, cnv.pl, ncol=1, rel_heights=c(0.1, 1))
 
+pl <- plot_grid(pl1, pl2, pl3, nrow=1, ncol=3, align="hv")
+save_plot("plots/PCA.pdf", pl, base_width=15, nrow=1)
+
+
+# Most variable data
+#library(matrixStats)
+#vars <- rowVars(golub)
+#N <- 5
+#ndx <- order(vars, decreasing = T)[1:N]
