@@ -57,7 +57,7 @@ expr.varmean <- mean(expr.vars)
 cnv.varmean <- mean(cnv.vars)
 
 cnv.N <- 50
-meth.N <- 50
+meth.N <- 13
 expr.N <- 50
 meth.ndx <- order(meth.vars, decreasing = T)[1:meth.N]
 expr.ndx <- order(expr.vars, decreasing = T)[1:expr.N]
@@ -67,3 +67,35 @@ meth.f <- meth$dat[meth.ndx, ]
 expr.f <- expr[expr.ndx, ]
 cnv.f <- cna$dat[cnv.ndx, ]
 
+
+# Random forest
+
+# CNV
+cnv.df = data.frame(pat, t(cnv.f))
+cnv.rf <- randomForest(subtype ~ ., data=cnv.df, importance=TRUE,
+                        proximity=TRUE)
+print(cnv.rf)
+
+# Methylation
+meth.df = data.frame(pat, t(meth.f))
+meth.rf <- randomForest(subtype ~ ., data=meth.df, importance=TRUE,
+                       proximity=TRUE)
+print(meth.rf)
+
+# Expression
+expr.df = data.frame(pat, t(expr.f))
+expr.rf <- randomForest(subtype ~ ., data=expr.df, importance=TRUE,
+                        proximity=TRUE)
+print(expr.rf)
+
+
+## Look at variable importance:
+#round(importance(iris.rf), 2)
+## Do MDS on 1 - proximity:
+#iris.mds <- cmdscale(1 - iris.rf$proximity, eig=TRUE)
+#op <- par(pty="s")
+#pairs(cbind(iris[,1:4], iris.mds$points), cex=0.6, gap=0,
+#      col=c("red", "green", "blue")[as.numeric(iris$Species)],
+#      main="Iris Data: Predictors and MDS of Proximity Based on RandomForest")
+#par(op)
+#print(iris.mds$GOF)
