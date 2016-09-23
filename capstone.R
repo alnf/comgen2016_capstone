@@ -59,6 +59,9 @@ cnv.varmean <- mean(cnv.vars)
 cnv.N <- 12
 meth.N <- 13
 expr.N <- 8
+#cnv.N <- 100
+#meth.N <- 100
+#expr.N <- 100
 meth.ndx <- order(meth.vars, decreasing = T)[1:meth.N]
 expr.ndx <- order(expr.vars, decreasing = T)[1:expr.N]
 cnv.ndx <- order(cnv.vars, decreasing = T)[1:cnv.N]
@@ -76,13 +79,14 @@ cnv.rf <- randomForest(subtype ~ ., data=cnv.df, importance=TRUE,
                         proximity=TRUE)
 print(cnv.rf)
 cnv.genes <- round(importance(cnv.rf), 2)
-
+varImpPlot(cnv.rf)
 # Methylation
 meth.df = data.frame(pat, t(meth.f))
 meth.rf <- randomForest(subtype ~ ., data=meth.df, importance=TRUE,
                        proximity=TRUE)
 print(meth.rf)
 meth.genes <- round(importance(meth.rf), 2)
+varImpPlot(meth.rf)
 
 # Expression
 expr.df = data.frame(pat, t(expr.f))
@@ -90,7 +94,7 @@ expr.rf <- randomForest(subtype ~ ., data=expr.df, importance=TRUE,
                         proximity=TRUE)
 print(expr.rf)
 expr.genes <- round(importance(expr.rf), 2)
-
+varImpPlot(expr.rf)
 
 ## Do MDS on 1 - proximity:
 meth.mds <- cmdscale(1 - meth.rf$proximity, eig=TRUE)
@@ -100,3 +104,13 @@ pairs(cbind(meth.df[,-1], meth.mds$points), cex=0.6, gap=0,
       main="Methylation Data: Predictors and MDS of Proximity Based on RandomForest")
 par(op)
 print(meth.mds$GOF)
+
+
+combined <- merge(cnv.df, meth.df, by="row.names")
+combined.b <- combined[, -15]
+rownames(combined.b) <- combined[, 1]
+combined.b <- combined.b[, -1]
+
+rf <- randomForest(subtype.x ~ ., data=combined.b, importance=TRUE,
+                       proximity=TRUE)
+print(rf)
